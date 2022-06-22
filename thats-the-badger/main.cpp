@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-#include <algorithm>
-#include <cstring>
 #include <string>
 #include <sstream>
 #include <iomanip>
@@ -14,12 +12,14 @@
 #include "scd4x_i2c.h"
 #include "pimoroni_i2c.hpp"
 #include "sensirion_i2c_hal.h"
-#include "hardware/flash.h"
-#include "hardware/sync.h"
 
-#define FLASH_TARGET_OFFSET (256 * 1024)
+#include "state.hpp"
 
 using namespace pimoroni;
+
+Badger2040 badger;
+I2C i2c(BOARD::BREAKOUT_GARDEN);
+State state = State();
 
 std::string to_str(float f) {
   std::ostringstream os;
@@ -28,64 +28,16 @@ std::string to_str(float f) {
 }
 
 float ctof(float c) {
-  return (c * 9/5) + 32;
+  return (c * 9 / 5) + 32;
 }
 
-Badger2040 badger;
-
-uint32_t time() {
-  absolute_time_t t = get_absolute_time();
-  return to_ms_since_boot(t);
+void wait_for_idle() {
+  if (!badger.is_busy()) return;
+  while (badger.is_busy()) sleep_ms(10);
 }
 
-enum Screen : uint8_t {
-    Badge,
-    AirQuality
-};
-
-struct State {
-  public:
-    State()= default;
-
-    uint16_t magic = 0x6022;
-
-    Screen current_screen = Badge;
-
-    float co2s[32] = {};
-    uint8_t co2_index = 0;
-
-    float temps[32] = {};
-    uint8_t  temp_index = 0;
-
-    float humidities[32] = {};
-    uint8_t humidity_index = 0;
-};
-
-void store_state(const State* data)
-{
-  uint32_t len = sizeof(State);
-
-  if (len > FLASH_BLOCK_SIZE) len = FLASH_BLOCK_SIZE;
-
-  const uint32_t page_count = (len / FLASH_PAGE_SIZE) + 1;
-  const uint32_t sector_count = ((page_count * FLASH_PAGE_SIZE) / FLASH_SECTOR_SIZE) + 1;
-
-  uint32_t ints = save_and_disable_interrupts();
-  flash_range_erase(FLASH_TARGET_OFFSET, FLASH_SECTOR_SIZE * sector_count);
-  flash_range_program(FLASH_TARGET_OFFSET, (uint8_t *) data, FLASH_PAGE_SIZE * page_count);
-  restore_interrupts(ints);
-}
-
-void get_state(State* state)
-{
-  const auto* data = (const State*)(XIP_BASE + FLASH_TARGET_OFFSET);
-  if (data->magic == 0x6022) {
-    memcpy(state, data, sizeof(State));
-  }
-}
-
-int read_air_quality(uint16_t* co2, float* temperature,
-                     float* humidity) {
+int read_air_quality(uint16_t *co2, float *temperature,
+                     float *humidity) {
   int16_t error;
 
   printf("    starting read_air_quality:\n");
@@ -99,7 +51,7 @@ int read_air_quality(uint16_t* co2, float* temperature,
   uint16_t _co2;
   int32_t _temperature;
   int32_t _humidity;
-  while(true) {
+  while (true) {
     sensirion_i2c_hal_sleep_usec(5000000);
     uint16_t data_ready = 0;
     error = scd4x_get_data_ready_status(&data_ready);
@@ -118,7 +70,7 @@ int read_air_quality(uint16_t* co2, float* temperature,
       printf("      error calling scd4x_get_data_ready_status.\n");
       continue;
     }
-    if (co2 == 0) {
+    if (co2 == nullptr) {
       printf("      invalid sample.\n");
       continue;
     }
@@ -164,16 +116,6 @@ void draw_aqm() {
   badger.text(to_str(humidity) + "%", 90, 54, 0.80f);
 }
 
-I2C i2c(BOARD::BREAKOUT_GARDEN);
-
-void wait_for_idle()
-{
-  if (!badger.is_busy()) return;
-  while (badger.is_busy()) sleep_ms(10);
-}
-
-State state = State();
-
 int main() {
   badger.init();
   stdio_init_all();
@@ -183,7 +125,8 @@ int main() {
 
   printf("get_state: ");
   get_state(&state);
-  printf("{magic: %X, screen: %d, co2_index: %d,temp_index: %d, humidity_index: %d} ", state.magic, state.current_screen, state.co2_index, state.temp_index, state.humidity_index);
+  printf("{magic: %X, screen: %d, co2_index: %d,temp_index: %d, humidity_index: %d} ", state.magic,
+         state.current_screen, state.co2_index, state.temp_index, state.humidity_index);
   printf("done.\n");
 
   if (badger.pressed_to_wake(badger.A)) {
@@ -244,7 +187,8 @@ int main() {
     }
 
     printf("  store_state: ");
-    printf("{magic: %x, screen: %d, co2_index: %d,temp_index: %d, humidity_index: %d} ", state.magic, state.current_screen, state.co2_index, state.temp_index, state.humidity_index);
+    printf("{magic: %x, screen: %d, co2_index: %d,temp_index: %d, humidity_index: %d} ", state.magic,
+           state.current_screen, state.co2_index, state.temp_index, state.humidity_index);
     store_state(&state);
     printf("done.\n");
 

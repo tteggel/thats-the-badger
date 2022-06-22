@@ -1,8 +1,8 @@
 # rename your project
-project(programexample C CXX)
+project(thats-the-badger C CXX)
 
 # Initialize the SDK
-pico_sdk_init() 
+pico_sdk_init()
 
 # Add your source files
 add_executable(${PROJECT_NAME}
@@ -21,7 +21,8 @@ pico_enable_stdio_usb(${PROJECT_NAME} 0)
 target_link_libraries(${PROJECT_NAME}
     pico_stdlib
     hardware_spi
-    badger2040 # <-- List libraries here!
+    badger2040
+    scd4x
 )
 
 

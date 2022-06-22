@@ -33,8 +33,9 @@
 
 # directories
 .vscode
-build/**
+build/
 .cache
+.idea
 
 # submodules
 pico-sdk/**

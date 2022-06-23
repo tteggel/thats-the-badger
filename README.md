@@ -15,7 +15,6 @@ From my WSL:
  ninja thats-the-badger && sudo mount -t drvfs D: /mnt/d && cp thats-the-badger/thats-the-badger.uf2 /mnt/d/
 ```
 
-
 ## Acknowledgements
 * Avinal Kumar for the boilerplate https://github.com/avinal/badger2040-boilerplate/
 * Michael Bell for the Badger Set https://github.com/MichaelBell/badger-set

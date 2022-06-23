@@ -5,6 +5,7 @@ pico_sdk_init()
 add_executable(${PROJECT_NAME}
     main.cpp
     state.cpp
+    sdc4x.cpp
 )
 
 pico_set_program_name(${PROJECT_NAME} "${PROJECT_NAME}")
@@ -19,6 +20,7 @@ target_link_libraries(${PROJECT_NAME}
     hardware_spi
     badger2040
     scd4x
+    pico_multicore
 )
 
 

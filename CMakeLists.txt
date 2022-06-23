@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Change your executable name to something creative!
-set(NAME badger-project)
+set(NAME thats-the-badger)
 
 # include the dependencies
 include(pimoroni_pico_import.cmake)

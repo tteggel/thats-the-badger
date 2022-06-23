@@ -25,7 +25,7 @@ void store_state(const State* data)
 void get_state(State* state)
 {
   const auto* data = (const State*)(XIP_BASE + FLASH_TARGET_OFFSET);
-  if (data->magic == 0x6022) {
+  if (data->magic == 0x6023) {
     memcpy(state, data, sizeof(State));
   }
 }

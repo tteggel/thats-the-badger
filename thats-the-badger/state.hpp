@@ -1,26 +1,31 @@
 #include "pico/platform.h"
 
+#define READING_SAMPLE_COUNT 32
+
 enum Screen : uint8_t {
+    None,
     Badge,
     AirQuality
 };
 
-struct State {
+class Reading {
+public:
+    Reading() = default;
+    uint16_t co2 = 0;
+    float temperature = 0;
+    float humidity = 0;
+};
+
+class State {
 public:
     State() = default;
 
-    uint16_t magic = 0x6022;
+    uint16_t magic = 0x6023;
 
     Screen current_screen = Badge;
 
-    float co2s[32] = {};
-    uint8_t co2_index = 0;
-
-    float temps[32] = {};
-    uint8_t temp_index = 0;
-
-    float humidities[32] = {};
-    uint8_t humidity_index = 0;
+    Reading readings[READING_SAMPLE_COUNT] = {};
+    uint8_t reading_index = 0;
 };
 
 void store_state(const State *data);

@@ -79,16 +79,16 @@ void air_quality_worker() {
     break;
   }
 
-  Reading reading = Reading();
+  Reading reading;
 
   reading.co2 = _co2;
-  printf("air_quality_worker CO2: %uppm\n", reading.co2);
+  printf("air_quality_worker CO2: %.2fuppm\n", reading.co2);
 
-  reading.temperature = _temperature / 1000;
-  printf("air_quality_worker Temperature: %.0f°C\n", reading.temperature);
+  reading.temperature = _temperature / 1000.0f;
+  printf("air_quality_worker Temperature: %.2f°C\n", reading.temperature);
 
-  reading.humidity = _humidity / 1000;
-  printf("air_quality_worker Humidity: %.0f%%\n", reading.humidity);
+  reading.humidity = _humidity / 1000.0f;
+  printf("air_quality_worker Humidity: %.2f%%\n", reading.humidity);
 
   for (int tries=10; tries>0; --tries) {
     if (queue_try_add(&results_queue, &reading)) break;
@@ -113,7 +113,7 @@ int start_air_quality_measurement() {
   return 1;
 }
 
-int get_air_quality_reading(Reading* reading) {
+int get_air_quality_reading(Reading *reading) {
   printf("get_air_quality_reading checking for a new reading...\n");
   if (queue_try_remove(&results_queue, reading)) {
     printf("get_air_quality_reading new reading.\n");

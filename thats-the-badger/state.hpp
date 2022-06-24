@@ -1,3 +1,5 @@
+#include <array>
+
 #include "pico/platform.h"
 
 #define READING_SAMPLE_COUNT 32
@@ -11,7 +13,7 @@ enum Screen : uint8_t {
 class Reading {
 public:
     Reading() = default;
-    uint16_t co2 = 0;
+    float co2 = 0;
     float temperature = 0;
     float humidity = 0;
 };
@@ -24,7 +26,7 @@ public:
 
     Screen current_screen = Badge;
 
-    Reading readings[READING_SAMPLE_COUNT] = {};
+    std::array<Reading, READING_SAMPLE_COUNT> readings = {};
     uint8_t reading_index = 0;
 };
 

@@ -1,4 +1,5 @@
 #include <cstring>
+#include <cstdio>
 #include "pico/platform.h"
 
 #include "hardware/flash.h"
@@ -25,6 +26,7 @@ void store_state(const State* data)
 void get_state(State* state)
 {
   const auto* data = (const State*)(XIP_BASE + FLASH_TARGET_OFFSET);
+  printf("0x%X", data->magic);
   if (data->magic == 0x6023) {
     memcpy(state, data, sizeof(State));
   }

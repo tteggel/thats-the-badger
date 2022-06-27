@@ -11,6 +11,7 @@
 #include "sdc4x.hpp"
 
 #include "badge.hpp"
+#include "contact.hpp"
 
 pimoroni::Badger2040 badger;
 
@@ -39,6 +40,12 @@ void draw_badge() {
   badger.pen(15);
   badger.clear();
   badger.image(badge_bitmap);
+}
+
+void draw_contact() {
+  badger.pen(15);
+  badger.clear();
+  badger.image(contact_bitmap);
 }
 
 void draw_right_text(std::string text, float font_size, int right, int top) {
@@ -197,6 +204,13 @@ int main() {
     printf("state.current_screen = AirQuality done.\n");
   }
 
+  if (badger.pressed_to_wake(badger.C)) {
+    printf("state.current_screen = Contact...\n");
+    state.current_screen = Contact;
+    state_dirty = true;
+    printf("state.current_screen = Contact done.\n");
+  }
+
   printf("sensor_init...\n");
   init_sensor();
   printf("sensor_init done.\n");
@@ -234,6 +248,10 @@ int main() {
       draw_badge();
       draw_badge_air_data();
       printf("main_loop draw_badge done.\n");
+    } else if (state.current_screen == Contact && painted_screen != Contact) {
+      printf("main_loop draw_contact...\n");
+      draw_contact();
+      printf("main_loop draw_contact done.\n");
     }
 
     if (painted_screen != state.current_screen) {

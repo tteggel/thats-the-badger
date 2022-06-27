@@ -7,7 +7,8 @@
 enum Screen : uint8_t {
     None,
     Badge,
-    AirQuality
+    AirQuality,
+    Contact
 };
 
 class Reading {
